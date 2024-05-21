@@ -48,7 +48,7 @@ const AuctionApp = () => {
 
     try {
       // Send bid to server
-      await axios.post('http://localhost:3001/submit-bid', {
+      await axios.post('http://localhost:3002/submit-bid', { 
         productId: productId,
         userName: userName,
         bidAmount: bidAmount,
