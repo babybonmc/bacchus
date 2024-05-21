@@ -47,9 +47,8 @@ const AuctionApp = () => {
     const uniqueIdentifier = `${userName}-${timestamp}`; // Unique identifier
 
     try {
-      // Mock API request for submitting the bid
-      // Replace with your actual API endpoint
-      await axios.post('http://example.com/submit-bid', {
+      // Send bid to server
+      await axios.post('http://localhost:3001/submit-bid', {
         productId: productId,
         userName: userName,
         bidAmount: bidAmount,
