@@ -3,7 +3,6 @@ import axios from 'axios';
 
 const AuctionApp = () => {
   const [auctions, setAuctions] = useState([]);
-  const [filteredAuctions, setFilteredAuctions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [userName, setUserName] = useState('');
@@ -14,7 +13,6 @@ const AuctionApp = () => {
       try {
         const response = await axios.get('http://uptime-auction-api.azurewebsites.net/api/Auction');
         setAuctions(response.data);
-        setFilteredAuctions(response.data);
         const uniqueCategories = [...new Set(response.data.map(auction => auction.productCategory))];
         setCategories(uniqueCategories);
       } catch (error) {
@@ -27,40 +25,32 @@ const AuctionApp = () => {
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    if (category === '') {
-      setFilteredAuctions(auctions);
-    } else {
-      const filtered = auctions.filter(auction => auction.productCategory === category);
-      setFilteredAuctions(filtered);
-    }
   };
 
-  const handleBidSubmit = (productId) => {
+  const handleBidSubmit = async (productId) => {
     if (!userName || !bidAmount) {
       alert('Please enter your name and bid amount.');
       return;
     }
 
-    // Send bid to server
-    // Example:
-    // axios.post('http://example.com/submit-bid', {
-    //   productId: productId,
-    //   userName: userName,
-    //   bidAmount: bidAmount
-    // })
-    // .then(response => {
-    //   alert('Bid submitted successfully.');
-    //   setUserName('');
-    //   setBidAmount('');
-    // })
-    // .catch(error => {
-    //   console.error('Error submitting bid:', error);
-    //   alert('Failed to submit bid. Please try again.');
-    // });
+    const timestamp = new Date().toISOString(); // Generate timestamp
+    const uniqueIdentifier = `${userName}-${timestamp}`; // Unique identifier
 
-    alert(`Bid submitted: ${userName}, ${bidAmount}€ for product ${productId}`);
-    setUserName('');
-    setBidAmount('');
+    try {
+      // Send bid to server
+      await axios.post('http://example.com/submit-bid', {
+        productId: productId,
+        userName: userName,
+        bidAmount: bidAmount,
+        uniqueIdentifier: uniqueIdentifier
+      });
+      alert('Bid submitted successfully.');
+      setUserName('');
+      setBidAmount('');
+    } catch (error) {
+      console.error('Error submitting bid:', error);
+      alert('Failed to submit bid. Please try again.');
+    }
   };
 
   return (
@@ -76,7 +66,7 @@ const AuctionApp = () => {
         </select>
       </div>
       <ul>
-        {filteredAuctions.map(auction => (
+        {auctions.map(auction => (
           <li key={auction.productId}>
             <h2>{auction.productTitle}</h2>
             <p>{auction.productDescription}</p>
