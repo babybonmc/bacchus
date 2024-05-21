@@ -23,8 +23,8 @@ app.post('/submit-bid', (req, res) => {
 });
 
 // Endpoint to get all bids (for testing purposes)
-app.get('/bids', (req, res) => {
-  res.json(bids);
+app.get('/submit-bid', (req, res) => {
+  res.status(405).send('This endpoint is only for submitting bids via POST request.');
 });
 
 app.listen(port, () => {
