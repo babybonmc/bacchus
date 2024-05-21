@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const AuctionApp = () => {
   const [auctions, setAuctions] = useState([]);
+  const [filteredAuctions, setFilteredAuctions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [userName, setUserName] = useState('');
@@ -12,8 +13,11 @@ const AuctionApp = () => {
     const fetchAuctions = async () => {
       try {
         const response = await axios.get('http://uptime-auction-api.azurewebsites.net/api/Auction');
-        setAuctions(response.data);
-        const uniqueCategories = [...new Set(response.data.map(auction => auction.productCategory))];
+        const data = response.data;
+        setAuctions(data);
+        setFilteredAuctions(data);
+
+        const uniqueCategories = [...new Set(data.map(auction => auction.productCategory))];
         setCategories(uniqueCategories);
       } catch (error) {
         console.error('Error fetching auctions:', error);
@@ -25,6 +29,12 @@ const AuctionApp = () => {
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
+    if (category === '') {
+      setFilteredAuctions(auctions);
+    } else {
+      const filtered = auctions.filter(auction => auction.productCategory === category);
+      setFilteredAuctions(filtered);
+    }
   };
 
   const handleBidSubmit = async (productId) => {
@@ -37,13 +47,15 @@ const AuctionApp = () => {
     const uniqueIdentifier = `${userName}-${timestamp}`; // Unique identifier
 
     try {
-      // Send bid to server
+      // Mock API request for submitting the bid
+      // Replace with your actual API endpoint
       await axios.post('http://example.com/submit-bid', {
         productId: productId,
         userName: userName,
         bidAmount: bidAmount,
         uniqueIdentifier: uniqueIdentifier
       });
+
       alert('Bid submitted successfully.');
       setUserName('');
       setBidAmount('');
@@ -64,9 +76,10 @@ const AuctionApp = () => {
             <option key={category} value={category}>{category}</option>
           ))}
         </select>
+        <button onClick={() => handleCategoryChange('')}>Reset</button>
       </div>
       <ul>
-        {auctions.map(auction => (
+        {filteredAuctions.map(auction => (
           <li key={auction.productId}>
             <h2>{auction.productTitle}</h2>
             <p>{auction.productDescription}</p>
