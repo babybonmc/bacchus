@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const fetchAuctions = async () => {
-  const response = await axios.get('http://uptime-auction-api.azurewebsites.net/api/Auction');
-  return response.data;
-};
-
 const AuctionApp = () => {
   const [auctions, setAuctions] = useState([]);
   const [filteredAuctions, setFilteredAuctions] = useState([]);
@@ -15,72 +10,91 @@ const AuctionApp = () => {
   const [bidAmount, setBidAmount] = useState('');
 
   useEffect(() => {
-    const loadAuctions = async () => {
-      const data = await fetchAuctions();
-      setAuctions(data);
-      setFilteredAuctions(data);
-      const uniqueCategories = [...new Set(data.map(auction => auction.productCategory))];
-      setCategories(uniqueCategories);
+    const fetchAuctions = async () => {
+      try {
+        const response = await axios.get('http://uptime-auction-api.azurewebsites.net/api/Auction');
+        setAuctions(response.data);
+        setFilteredAuctions(response.data);
+        const uniqueCategories = [...new Set(response.data.map(auction => auction.productCategory))];
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching auctions:', error);
+      }
     };
 
-    loadAuctions();
+    fetchAuctions();
   }, []);
 
   const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
     if (category === '') {
       setFilteredAuctions(auctions);
     } else {
       const filtered = auctions.filter(auction => auction.productCategory === category);
       setFilteredAuctions(filtered);
     }
-    setSelectedCategory(category);
   };
 
   const handleBidSubmit = (productId) => {
     if (!userName || !bidAmount) {
-      alert('Пожалуйста, введите ваше имя и сумму ставки.');
+      alert('Please enter your name and bid amount.');
       return;
     }
 
-    // 
-    alert(`Ставка принята: ${userName}, ${bidAmount}€ на товар ${productId}`);
+    // Send bid to server
+    // Example:
+    // axios.post('http://example.com/submit-bid', {
+    //   productId: productId,
+    //   userName: userName,
+    //   bidAmount: bidAmount
+    // })
+    // .then(response => {
+    //   alert('Bid submitted successfully.');
+    //   setUserName('');
+    //   setBidAmount('');
+    // })
+    // .catch(error => {
+    //   console.error('Error submitting bid:', error);
+    //   alert('Failed to submit bid. Please try again.');
+    // });
+
+    alert(`Bid submitted: ${userName}, ${bidAmount}€ for product ${productId}`);
     setUserName('');
     setBidAmount('');
   };
 
   return (
     <div>
-      <h1>Текущие Аукционы</h1>
+      <h1>Current Auctions</h1>
       <div>
-        <label>Категория: </label>
+        <label>Category: </label>
         <select onChange={(e) => handleCategoryChange(e.target.value)} value={selectedCategory}>
-          <option value=''>Все</option>
+          <option value=''>All</option>
           {categories.map(category => (
             <option key={category} value={category}>{category}</option>
           ))}
         </select>
-        <button onClick={() => handleCategoryChange('')}>Сбросить</button>
       </div>
       <ul>
         {filteredAuctions.map(auction => (
           <li key={auction.productId}>
             <h2>{auction.productTitle}</h2>
             <p>{auction.productDescription}</p>
-            <p>Время окончания: {new Date(auction.biddingEndDate).toLocaleString()}</p>
+            <p>Ends at: {new Date(auction.biddingEndDate).toLocaleString()}</p>
             <form onSubmit={(e) => { e.preventDefault(); handleBidSubmit(auction.productId); }}>
               <input
                 type="text"
-                placeholder="Ваше имя"
+                placeholder="Your Name"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
               />
               <input
                 type="number"
-                placeholder="Сумма ставки (€)"
+                placeholder="Bid Amount (€)"
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
               />
-              <button type="submit">Сделать ставку</button>
+              <button type="submit">Place Bid</button>
             </form>
           </li>
         ))}
