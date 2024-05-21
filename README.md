@@ -4,8 +4,8 @@ The Bacchus app allows users to view current auctions and place bids on selected
 ## Installation
 1. Clone the repository:
     ```sh
-    git clone <https://github.com/babybonmc/bacchus>
-    cd <bacchus>
+    git clone https://github.com/babybonmc/bacchus
+    cd bacchus
     ```
 2. Install dependencies:
     ```sh
