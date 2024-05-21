@@ -48,4 +48,45 @@ const AuctionApp = () => {
     setBidAmount('');
   };
 
-export default App;
+  return (
+    <div>
+      <h1>Текущие Аукционы</h1>
+      <div>
+        <label>Категория: </label>
+        <select onChange={(e) => handleCategoryChange(e.target.value)} value={selectedCategory}>
+          <option value=''>Все</option>
+          {categories.map(category => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <button onClick={() => handleCategoryChange('')}>Сбросить</button>
+      </div>
+      <ul>
+        {filteredAuctions.map(auction => (
+          <li key={auction.productId}>
+            <h2>{auction.productTitle}</h2>
+            <p>{auction.productDescription}</p>
+            <p>Время окончания: {new Date(auction.biddingEndDate).toLocaleString()}</p>
+            <form onSubmit={(e) => { e.preventDefault(); handleBidSubmit(auction.productId); }}>
+              <input
+                type="text"
+                placeholder="Ваше имя"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Сумма ставки (€)"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+              />
+              <button type="submit">Сделать ставку</button>
+            </form>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default AuctionApp;
