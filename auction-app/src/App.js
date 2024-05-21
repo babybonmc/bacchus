@@ -26,4 +26,26 @@ const AuctionApp = () => {
     loadAuctions();
   }, []);
 
+  const handleCategoryChange = (category) => {
+    if (category === '') {
+      setFilteredAuctions(auctions);
+    } else {
+      const filtered = auctions.filter(auction => auction.productCategory === category);
+      setFilteredAuctions(filtered);
+    }
+    setSelectedCategory(category);
+  };
+
+  const handleBidSubmit = (productId) => {
+    if (!userName || !bidAmount) {
+      alert('Пожалуйста, введите ваше имя и сумму ставки.');
+      return;
+    }
+
+    // 
+    alert(`Ставка принята: ${userName}, ${bidAmount}€ на товар ${productId}`);
+    setUserName('');
+    setBidAmount('');
+  };
+
 export default App;
